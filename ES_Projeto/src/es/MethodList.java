@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 public class MethodList extends AbstractTableModel {
 	
-	private final String[] columnNames = {"MethodID","package","class","method","LOC","CYCLO","ATFD","LAA","is_long_method","iPlasma","is_feature_envy"};
+	private final String[] columnNames = {"MethodID","package","class","method","LOC","CYCLO","ATFD","LAA","is_long_method","iPlasma","PMD","is_feature_envy"};
 	
 	//holds the data type for all columns
 	private final Class[] columnClasses = {Integer.class,String.class,String.class,String.class,Integer.class,Integer.class,Integer.class,
