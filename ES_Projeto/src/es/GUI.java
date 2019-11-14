@@ -270,7 +270,13 @@ public class GUI {
 
 			}
 		});
-
+		
+		clear_file.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				myTable.setModel(new MethodList());
+			}
+		});
+		
 		panel1.add(file);
 		panel1.add(clear_file);
 		panel1.add(scrollPane);
