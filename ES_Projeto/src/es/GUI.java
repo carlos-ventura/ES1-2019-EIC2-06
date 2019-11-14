@@ -13,9 +13,12 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
@@ -25,16 +28,20 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+
 public class GUI {
 
 	private JFrame frame;
 	private JButton file;
 	private JPanel panel1;
 	private JPanel panel2;
+	private JTextField loc = new JTextField("80");
+	private JTextField cyclo =new JTextField("10");
+	private JTextField atfd = new JTextField("4");
+	private JTextField laa = new JTextField("0.42");
 	private JButton thresholds;
 	private JButton new_rule;
 	private JButton clear_file;
-
 	private JTable myTable;
 	private ArrayList<Method> methodslist;
 	private ArrayList<Method> deletelist;
@@ -218,8 +225,44 @@ public class GUI {
 		scrollPane = new JScrollPane(myTable);
 
 	}
+	
+	
+	private void gui_thresholds() {
+
+		double [] initial = new double [4];
+		initial[0]= Double.parseDouble(loc.getText());
+		initial[1]= Double.parseDouble(cyclo.getText());
+		initial[2]= Double.parseDouble(atfd.getText());
+		initial[3]= Double.parseDouble(laa.getText());
+
+		JPanel myPanel = new JPanel();
+		myPanel.setLayout(new GridLayout(2, 0, 20, 10));
+		myPanel.add(new JLabel("Long method"));
+		myPanel.add(new JLabel("LOC:"));
+		myPanel.add(loc);
+		myPanel.add(new JLabel("CYCLO:"));
+		myPanel.add(cyclo);
+		myPanel.add(new JLabel("Feature envy"));
+		myPanel.add(new JLabel("ATFD:"));
+		myPanel.add(atfd);
+		myPanel.add(new JLabel("LAA:"));
+		myPanel.add(laa);
+
+		int result = JOptionPane.showConfirmDialog(null, myPanel, 
+				"Please Enter Values", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
+			loc.setText(String.valueOf(initial[0]));
+			cyclo.setText(String.valueOf(initial[1]));
+			atfd.setText(String.valueOf(initial[2]));
+			laa.setText(String.valueOf(initial[3]));
+		}
 
 
+
+	}
+	
+	
+	
 
 
 	public void create_GUI() {
@@ -274,6 +317,12 @@ public class GUI {
 		clear_file.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				myTable.setModel(new MethodList());
+			}
+		});
+		
+		thresholds.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				gui_thresholds();
 			}
 		});
 		
