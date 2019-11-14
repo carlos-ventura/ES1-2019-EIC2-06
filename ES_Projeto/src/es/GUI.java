@@ -14,9 +14,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,7 +45,65 @@ public class GUI {
 	private JTextField cyclo =new JTextField("10");
 	private JTextField atfd = new JTextField("4");
 	private JTextField laa = new JTextField("0.42");
-		
+	
+	private void create_rule() {
+		JPanel main = new JPanel();
+		JPanel rule_panel = new JPanel();
+		JPanel sum = new JPanel();
+		sum.setLayout(new GridLayout(1,0));
+		rule_panel.setLayout(new GridLayout(10, 0, 10, 10));
+		JLabel rule_name = new JLabel("Rule's Name:");
+		JTextField rule_new_name = new JTextField();
+		JLabel c_m = new JLabel("Choose Metrics:");
+		JLabel m = new JLabel("");
+		JCheckBox cb_loc = new JCheckBox("LOC");
+		JCheckBox cb_cyclo = new JCheckBox("CYCLO");
+		JCheckBox cb_atfd = new JCheckBox("ATFD");
+		JCheckBox cb_laa = new JCheckBox("LAA");
+		JLabel c_t = new JLabel("Choose Thresholds:");
+		JLabel t = new JLabel("");
+		JLabel l_loc = new JLabel("LOC:");
+		JTextField t_loc = new JTextField("0");
+		JLabel l_cyclo = new JLabel("CYCLO:");
+		JTextField t_cyclo = new JTextField("0");
+		JLabel l_atfd = new JLabel("ATFD:");
+		JTextField t_atfd = new JTextField("0");
+		JLabel l_laa = new JLabel("LAA:");
+		JTextField t_laa = new JTextField("0");
+		JLabel final_expression = new JLabel("Final expression, complete the spaces:");
+
+		String [] ops = {">", ">=", "<", "<=", "="};
+		JList<String> operators = new JList<String>(ops);
+		String [] logic = {"||", "&&"};
+		JList<String> log = new JList<String>(logic);
+		rule_panel.add(rule_name);
+		rule_panel.add(rule_new_name);
+		rule_panel.add(c_m);
+		rule_panel.add(m);
+		rule_panel.add(cb_loc);
+		rule_panel.add(cb_cyclo);
+		rule_panel.add(cb_atfd);
+		rule_panel.add(cb_laa);
+
+		rule_panel.add(c_t);
+		rule_panel.add(t);
+
+		rule_panel.add(l_loc);
+		rule_panel.add(t_loc);
+		rule_panel.add(l_cyclo);
+		rule_panel.add(t_cyclo);
+		rule_panel.add(l_atfd);
+		rule_panel.add(t_atfd);
+		rule_panel.add(l_laa);
+		rule_panel.add(t_laa);
+		rule_panel.add(final_expression);
+
+
+		main.add(rule_panel);
+		main.add(sum);
+		JOptionPane.showConfirmDialog(
+				null, main, "Make new Rule", JOptionPane.OK_CANCEL_OPTION);
+	}
 	private void create_objects() {
 		try {
 			
@@ -242,7 +302,15 @@ public class GUI {
 				gui_thresholds();
 			}
 		});
-		
+		new_rule.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				create_rule();
+				
+			}
+			
+		});
 		panel1.add(file);
 		panel1.add(clear_file);
 		panel1.add(scrollPane);
