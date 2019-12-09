@@ -17,9 +17,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelReader implements ActionListener {
 	private static String keep="";
+	private MethodTable methodTable;
 
 
-	public ExcelReader() {
+	public ExcelReader(MethodTable methodTable) {
+		this.methodTable = methodTable;
 
 	}
 	@Override
@@ -42,6 +44,7 @@ public class ExcelReader implements ActionListener {
 	}
 	public void readExcel() {
 		try {
+			methodTable.clear();
 			FileInputStream file = new FileInputStream(new File(keep));
 			//Create Workbook instance holding reference to .xlsx file
 			XSSFWorkbook workbook = new XSSFWorkbook(file);
@@ -123,6 +126,7 @@ public class ExcelReader implements ActionListener {
 					//dar add uma linha a matrix
 					rows++;
 				}
+				methodTable.addMethod(m);
 				workbook.close();
 			} 
 			file.close();

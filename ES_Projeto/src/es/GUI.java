@@ -1,15 +1,18 @@
 package es;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
-import javax.swing.BorderFactory;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -20,33 +23,39 @@ import javax.swing.JTextField;
 
 
 
+
 public class GUI extends JFrame {
 	private MethodTable methodTable;
+	
 	private JTable table;
+	private JTextField is_L;
+	private JTextField is_F;
 	private JTextField loc = new JTextField("80");
 	private JTextField cyclo =new JTextField("10");
 	private JTextField atfd = new JTextField("4");
 	private JTextField laa = new JTextField("0.42");
-
+	
+	private LMRule lmRule=new LMRule(Symbol.MAIOR,80,Condition.AND,Symbol.MAIOR,10);
+	private FERule feRule=new FERule(Symbol.MAIOR,4,Condition.AND,Symbol.MENOR,0.42);
 	
 	public void create_GUI() {
 		methodTable = new MethodTable();
-	    table = new JTable(methodTable);
-	    for (int i =0; i<methodTable.getColumnCount();i++) {
-	         table.setDefaultRenderer(table.getColumnClass(i), new MethodCellRenderer());
+	    table = new JTable(getMethodTable());
+	    for (int i =0; i<getMethodTable().getColumnCount();i++) {
+	         getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
 	    }
-	    table.setPreferredScrollableViewportSize(new Dimension(1100, 170));
-		table.setFillsViewportHeight(true);
-		table.setDefaultEditor(Object.class, null);
+		getTable().setFillsViewportHeight(true);
+		getTable().setDefaultEditor(Object.class, null);
 		
 		
-		JScrollPane scrollPane = new JScrollPane(table);
+		JScrollPane scrollPane = new JScrollPane(getTable());
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		
 		JPanel panel1 = new JPanel();
+		panel1.setLayout(new BorderLayout());
 		JPanel rulesPanel = new JPanel();
 		rulesPanel.setLayout(new GridLayout(2,0));
-		rulesPanel.setBorder(BorderFactory.createEmptyBorder(0,40,10,40)); 
+		
 		JButton file = new JButton("Choose File");
 		JButton clear = new JButton("Clear File");
 
@@ -58,11 +67,12 @@ public class GUI extends JFrame {
 		
 		JPanel panel3 = new JPanel();
 
-		file.addActionListener(new ExcelReader());
+		
+		file.addActionListener(new ExcelReader(getMethodTable()));
 		clear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				methodTable.clear();
-				methodTable.fireTableDataChanged();	
+				getMethodTable().clear();
+				getMethodTable().fireTableDataChanged();							
 			}
 			
 		});
@@ -76,20 +86,31 @@ public class GUI extends JFrame {
 		
 		JPanel rulesp=new JPanel();
 		rulesp.setLayout(new GridLayout(0,2));
+		is_L=new JTextField(getLmRule().toString());
+		is_L.setEditable(false);
+		is_L.setBackground(Color.LIGHT_GRAY);
+		is_F=new JTextField(getFeRule().toString());
+		is_F.setEditable(false);
+		is_F.setBackground(Color.LIGHT_GRAY);
+		rulesp.add(is_L);
+		rulesp.add(is_F);
 		JPanel bp=new JPanel();
 		bp.add(thresholds);
 		rulesPanel.add(rulesp);
 		rulesPanel.add(bp);
-		panel1.add(file);
-		panel1.add(clear);
+		JPanel bp2=new JPanel();
+		bp2.add(file);
+		bp2.add(clear);
+		panel1.add(bp2,BorderLayout.NORTH);
+		panel1.add(scrollPane,BorderLayout.CENTER);
 		panel1.add(scrollPane);
 		JLabel lb=new JLabel("RESULTS");
 		panel3.add(lb);
-		
 		add(panel1);
 		add(rulesPanel);
 		add(panel3);
 	}
+	
 	
 	private void gui_thresholds() {
 		
@@ -279,11 +300,57 @@ public class GUI extends JFrame {
 		
 		maiorloc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getLmRule().setSymbol1(Symbol.MAIOR);
+				if (!menorloc.isSelected() && maiorloc.isSelected()) {
+					loc.setVisible(true);
+					menorloc.setVisible(!menorloc.isVisible());
+					menqloc.setVisible(!menqloc.isVisible());
+				} 
+				if (!menorloc.isSelected() && !maiorloc.isSelected()) {
+					loc.setVisible(false);
+					menorloc.setVisible(!menorloc.isVisible());
+					menqloc.setVisible(!menqloc.isVisible());
+				} 
+				if (!maiorloc.isSelected() || !maiorcyclo.isSelected() || !menorloc.isSelected() || !menorcyclo.isSelected() && (!cycloCheck.isSelected() || !locCheck.isSelected())) {
+					andlongcheck.setVisible(false);
+					andlong.setVisible(false);
+					orlongcheck.setVisible(false);
+					orlong.setVisible(false);
+				}
+				if ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() )) {
+					andlongcheck.setVisible(true);
+					andlong.setVisible(true);
+					orlongcheck.setVisible(true);
+					orlong.setVisible(true);
+				}
 			}
 		});
 		
 		menorloc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getLmRule().setSymbol1(Symbol.MENOR);
+				if (!maiorloc.isSelected() && menorloc.isSelected()) {
+					loc.setVisible(true);
+					maiorloc.setVisible(!maiorloc.isVisible());
+					maiqloc.setVisible(!maiqloc.isVisible());
+				} 
+				if (!maiorloc.isSelected() && !menorloc.isSelected()) {
+					loc.setVisible(false);
+					maiorloc.setVisible(!maiorloc.isVisible());
+					maiqloc.setVisible(!maiqloc.isVisible());
+				} 
+				if (!maiorloc.isSelected() || !maiorcyclo.isSelected() || !menorloc.isSelected() || !menorcyclo.isSelected() && (!cycloCheck.isSelected() || !locCheck.isSelected())) {
+					andlongcheck.setVisible(false);
+					andlong.setVisible(false);
+					orlongcheck.setVisible(false);
+					orlong.setVisible(false);
+				}
+				if ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() )) {
+					andlongcheck.setVisible(true);
+					andlong.setVisible(true);
+					orlongcheck.setVisible(true);
+					orlong.setVisible(true);
+				}
 			}
 		});
 		
@@ -354,11 +421,57 @@ public class GUI extends JFrame {
 		
 		maiorcyclo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getLmRule().setSymbol2(Symbol.MAIOR);
+				if (!menorcyclo.isSelected() && maiorcyclo.isSelected()) {
+					cyclo.setVisible(true);
+					menorcyclo.setVisible(!menorcyclo.isVisible());
+					menqcyclo.setVisible(!menqcyclo.isVisible());
+				} 
+				if (!menorcyclo.isSelected() && !maiorcyclo.isSelected()) {
+					cyclo.setVisible(false);
+					menorcyclo.setVisible(!menorcyclo.isVisible());
+					menqcyclo.setVisible(!menqcyclo.isVisible());
+				} 
+				if (!maiorloc.isSelected() || !maiorcyclo.isSelected() || !menorloc.isSelected() || !menorcyclo.isSelected() && (!cycloCheck.isSelected() || !locCheck.isSelected())) {
+					andlongcheck.setVisible(false);
+					andlong.setVisible(false);
+					orlongcheck.setVisible(false);
+					orlong.setVisible(false);
+				}
+				if ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() )) {
+					andlongcheck.setVisible(true);
+					andlong.setVisible(true);
+					orlongcheck.setVisible(true);
+					orlong.setVisible(true);
+				}
 			}
 		});
 		
 		menorcyclo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getLmRule().setSymbol2(Symbol.MENOR);
+				if (!maiorcyclo.isSelected() && menorcyclo.isSelected()) {
+					cyclo.setVisible(true);
+					maiorcyclo.setVisible(!maiorcyclo.isVisible());
+					maiqcyclo.setVisible(!maiqcyclo.isVisible());
+				} 
+				if (!maiorcyclo.isSelected() && !menorcyclo.isSelected()) {
+					cyclo.setVisible(false);
+					maiorcyclo.setVisible(!maiorcyclo.isVisible());
+					maiqcyclo.setVisible(!maiqcyclo.isVisible());
+				} 
+				if (!maiorloc.isSelected() || !maiorcyclo.isSelected() || !menorloc.isSelected() || !menorcyclo.isSelected() && (!cycloCheck.isSelected() || !locCheck.isSelected())) {
+					andlongcheck.setVisible(false);
+					andlong.setVisible(false);
+					orlongcheck.setVisible(false);
+					orlong.setVisible(false);
+				}
+				if ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() )) {
+					andlongcheck.setVisible(true);
+					andlong.setVisible(true);
+					orlongcheck.setVisible(true);
+					orlong.setVisible(true);
+				}
 			}
 		});
 		
@@ -367,10 +480,28 @@ public class GUI extends JFrame {
 		
 		andlongcheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getLmRule().setCondition(Condition.AND);
+				if (andlongcheck.isSelected()) {
+					orlongcheck.setVisible(false);
+					orlong.setVisible(false);
+					}
+				if (!andlongcheck.isSelected()) {
+					orlongcheck.setVisible(true);
+					orlong.setVisible(true);
+					}
 			}
 		});
 		orlongcheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getLmRule().setCondition(Condition.OR);
+				if (orlongcheck.isSelected()) {
+					andlongcheck.setVisible(false);
+					andlong.setVisible(false);
+					}
+				if (!orlongcheck.isSelected()) {
+					andlongcheck.setVisible(true);
+					andlong.setVisible(true);
+					}
 			}
 		});
 			
@@ -378,10 +509,28 @@ public class GUI extends JFrame {
 		
 		andfeatcheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getFeRule().setCondition(Condition.AND);
+				if (andfeatcheck.isSelected()) {
+					orfeatcheck.setVisible(false);
+					orfeat.setVisible(false);
+				}
+				if (!andfeatcheck.isSelected()) {
+					orfeatcheck.setVisible(true);
+					orfeat.setVisible(true);
+				}
 			}
 		});
 		orfeatcheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getFeRule().setCondition(Condition.OR);
+				if (orfeatcheck.isSelected()) {
+					andfeatcheck.setVisible(false);
+					andfeat.setVisible(false);
+				}
+				if (!orfeatcheck.isSelected()) {
+					andfeatcheck.setVisible(true);
+					andfeat.setVisible(true);
+				}
 			}
 		});
 		
@@ -450,11 +599,57 @@ public class GUI extends JFrame {
 		
 		maioratfd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getFeRule().setSymbol1(Symbol.MAIOR);
+				if (!menoratfd.isSelected() && maioratfd.isSelected()) {
+					atfd.setVisible(true);
+					menoratfd.setVisible(!menoratfd.isVisible());
+					menqatfd.setVisible(!menqatfd.isVisible());
+				} 
+				if (!menoratfd.isSelected() && !maioratfd.isSelected()) {
+					atfd.setVisible(false);
+					menoratfd.setVisible(!menoratfd.isVisible());
+					menqatfd.setVisible(!menqatfd.isVisible());
+				} 
+				if (!maiorlaa.isSelected() || !maioratfd.isSelected() || !menorlaa.isSelected() || !menoratfd.isSelected() && (!atfdCheck.isSelected() || !laaCheck.isSelected())) {
+					andfeatcheck.setVisible(false);
+					andfeat.setVisible(false);
+					orfeatcheck.setVisible(false);
+					orfeat.setVisible(false);
+				}
+				if ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() )) {
+					andfeatcheck.setVisible(true);
+					andfeat.setVisible(true);
+					orfeatcheck.setVisible(true);
+					orfeat.setVisible(true);
+				}
 			}
 		});
 		
 		menoratfd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getFeRule().setSymbol1(Symbol.MENOR);
+				if (!maioratfd.isSelected() && menoratfd.isSelected()) {
+					atfd.setVisible(true);
+					maioratfd.setVisible(!maioratfd.isVisible());
+					maiqatfd.setVisible(!maiqatfd.isVisible());
+				} 
+				if (!maioratfd.isSelected() && !menoratfd.isSelected()) {
+					atfd.setVisible(false);
+					maioratfd.setVisible(!maioratfd.isVisible());
+					maiqatfd.setVisible(!maiqatfd.isVisible());
+				} 
+				if (!maiorlaa.isSelected() || !maioratfd.isSelected() || !menorlaa.isSelected() || !menoratfd.isSelected() && (!atfdCheck.isSelected() || !laaCheck.isSelected())) {
+					andfeatcheck.setVisible(false);
+					andfeat.setVisible(false);
+					orfeatcheck.setVisible(false);
+					orfeat.setVisible(false);
+				}
+				if ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() )) {
+					andfeatcheck.setVisible(true);
+					andfeat.setVisible(true);
+					orfeatcheck.setVisible(true);
+					orfeat.setVisible(true);
+				}
 			}
 		});
 		
@@ -522,11 +717,57 @@ public class GUI extends JFrame {
 		
 		maiorlaa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getFeRule().setSymbol2(Symbol.MAIOR);
+				if (!menorlaa.isSelected() && maiorlaa.isSelected()) {
+					laa.setVisible(true);
+					menorlaa.setVisible(!menorlaa.isVisible());
+					menqlaa.setVisible(!menqlaa.isVisible());
+				} 
+				if (!menorlaa.isSelected() && !maiorlaa.isSelected()) {
+					laa.setVisible(false);
+					menorlaa.setVisible(!menorlaa.isVisible());
+					menqlaa.setVisible(!menqlaa.isVisible());
+				} 
+				if (!maiorlaa.isSelected() || !maioratfd.isSelected() || !menorlaa.isSelected() || !menoratfd.isSelected() && (!atfdCheck.isSelected() || !laaCheck.isSelected())) {
+					andfeatcheck.setVisible(false);
+					andfeat.setVisible(false);
+					orfeatcheck.setVisible(false);
+					orfeat.setVisible(false);
+				}
+				if ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() )) {
+					andfeatcheck.setVisible(true);
+					andfeat.setVisible(true);
+					orfeatcheck.setVisible(true);
+					orfeat.setVisible(true);
+				}
 			}
 		});
 		
 		menorlaa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				getFeRule().setSymbol2(Symbol.MENOR);
+				if (!maiorlaa.isSelected() && menorlaa.isSelected()) {
+					laa.setVisible(true);
+					maiorlaa.setVisible(!maiorlaa.isVisible());
+					maiqlaa.setVisible(!maiqlaa.isVisible());
+				} 
+				if (!maiorlaa.isSelected() && !menorlaa.isSelected()) {
+					laa.setVisible(false);
+					maiorlaa.setVisible(!maiorlaa.isVisible());
+					maiqlaa.setVisible(!maiqlaa.isVisible());
+				} 
+				if (!maiorlaa.isSelected() || !maioratfd.isSelected() || !menorlaa.isSelected() || !menoratfd.isSelected() && (!atfdCheck.isSelected() || !laaCheck.isSelected())) {
+					andfeatcheck.setVisible(false);
+					andfeat.setVisible(false);
+					orfeatcheck.setVisible(false);
+					orfeat.setVisible(false);
+				}
+				if ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() )) {
+					andfeatcheck.setVisible(true);
+					andfeat.setVisible(true);
+					orfeatcheck.setVisible(true);
+					orfeat.setVisible(true);
+				}
 			}
 		});
 		
@@ -539,19 +780,37 @@ public class GUI extends JFrame {
 			laa.setText(String.valueOf(initial[3]));
 		}
 		if(result ==JOptionPane.OK_OPTION) {
-			for (int i =0; i<methodTable.getColumnCount();i++) {
-		         table.setDefaultRenderer(table.getColumnClass(i), new MethodCellRenderer());
+			for (int i =0; i<getMethodTable().getColumnCount();i++) {
+		         getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
 		    }
-			methodTable.fireTableDataChanged();	
+			getMethodTable().fireTableDataChanged();	
+			
+			
+			try {
+				getLmRule().setVar1(Double.valueOf(loc.getText()));
+				getLmRule().setVar2(Double.valueOf(cyclo.getText()));
+				getFeRule().setVar1(Double.valueOf(atfd.getText()));
+				getFeRule().setVar2(Double.valueOf(laa.getText()));
+			} catch ( java.lang.NumberFormatException e) {
+				
+			}
+	
+			
+			is_L.setText(getLmRule().toString());
+			is_F.setText(getFeRule().toString());
+			
 		}
 		
 
 	}
+
 	public GUI() {
 		setTitle("Avaliação da qualidade de deteção de defeitos de desenho em projetos de software");
 		setLayout(new GridLayout(4,0));
 	    create_GUI();
 	}
+	
+
 
 	public void open() {
 		setSize(1200, 800);
@@ -565,5 +824,25 @@ public class GUI extends JFrame {
 		GUI f=new GUI();
 		f.open();
 	}
+
+
+
+	public JTable getTable() {
+		return table;
+	}
+
+	public MethodTable getMethodTable() {
+		return methodTable;
+	}
+
+	public LMRule getLmRule() {
+		return lmRule;
+	}
+
+	public FERule getFeRule() {
+		return feRule;
+	}
 }
+
+
 
