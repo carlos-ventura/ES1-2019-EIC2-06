@@ -21,11 +21,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import es.DetailTable;
+
 
 
 
 public class GUI extends JFrame {
 	private MethodTable methodTable;
+
+	private DetailTable detailTable;
 	
 	private JTable table;
 	private JTextField is_L;
@@ -34,21 +38,36 @@ public class GUI extends JFrame {
 	private JTextField cyclo =new JTextField("10");
 	private JTextField atfd = new JTextField("4");
 	private JTextField laa = new JTextField("0.42");
+
+	private JTable dtable;
 	
 	private LMRule lmRule=new LMRule(Symbol.MAIOR,80,Condition.AND,Symbol.MAIOR,10);
 	private FERule feRule=new FERule(Symbol.MAIOR,4,Condition.AND,Symbol.MENOR,0.42);
 	
 	public void create_GUI() {
 		methodTable = new MethodTable();
+
+		detailTable = new DetailTable();
 	    table = new JTable(getMethodTable());
+
+	    dtable = new JTable(detailTable);
 	    for (int i =0; i<getMethodTable().getColumnCount();i++) {
 	         getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
 	    }
 		getTable().setFillsViewportHeight(true);
 		getTable().setDefaultEditor(Object.class, null);
+		for (int i =0; i<methodTable.getColumnCount();i++) {
+	         dtable.setDefaultRenderer(dtable.getColumnClass(i), new MethodCellRenderer());
+	    }
+   dtable.setPreferredScrollableViewportSize(new Dimension(1180, 170));
+	dtable.setFillsViewportHeight(true);
+	dtable.setDefaultEditor(Object.class, null);
+
 		
 		
 		JScrollPane scrollPane = new JScrollPane(getTable());
+
+		JScrollPane scrollPane2 = new JScrollPane(dtable);
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		
 		JPanel panel1 = new JPanel();
@@ -64,11 +83,11 @@ public class GUI extends JFrame {
 		clear.setPreferredSize(new Dimension(300, 50));
 		file.setPreferredSize(new Dimension(300, 50));
 		thresholds.setPreferredSize(new Dimension(300, 50));
-		
+
 		JPanel panel3 = new JPanel();
 
 		
-		file.addActionListener(new ExcelReader(getMethodTable()));
+		file.addActionListener(new ExcelReader(getMethodTable(),getDetailTable()));
 		clear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getMethodTable().clear();
@@ -106,6 +125,7 @@ public class GUI extends JFrame {
 		panel1.add(scrollPane);
 		JLabel lb=new JLabel("RESULTS");
 		panel3.add(lb);
+		panel3.add(scrollPane2);
 		add(panel1);
 		add(rulesPanel);
 		add(panel3);
@@ -833,6 +853,9 @@ public class GUI extends JFrame {
 
 	public MethodTable getMethodTable() {
 		return methodTable;
+	}
+	public DetailTable getDetailTable() {
+		return detailTable;
 	}
 
 	public LMRule getLmRule() {
