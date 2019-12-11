@@ -22,6 +22,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import es.DetailTable;
+import es.ResultPanel;
 
 
 
@@ -30,7 +31,7 @@ public class GUI extends JFrame {
 	private MethodTable methodTable;
 
 	private DetailTable detailTable;
-	
+
 	private JTable table;
 	private JTextField is_L;
 	private JTextField is_F;
@@ -40,41 +41,43 @@ public class GUI extends JFrame {
 	private JTextField laa = new JTextField("0.42");
 
 	private JTable dtable;
-	
+
 	private LMRule lmRule=new LMRule(Symbol.MAIOR,80,Condition.AND,Symbol.MAIOR,10);
 	private FERule feRule=new FERule(Symbol.MAIOR,4,Condition.AND,Symbol.MENOR,0.42);
 	
+	private ResultPanel resultp = new ResultPanel();
+
 	public void create_GUI() {
 		methodTable = new MethodTable();
 
 		detailTable = new DetailTable();
-	    table = new JTable(getMethodTable());
+		table = new JTable(getMethodTable());
 
-	    dtable = new JTable(detailTable);
-	    for (int i =0; i<getMethodTable().getColumnCount();i++) {
-	         getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
-	    }
+		dtable = new JTable(detailTable);
+		for (int i =0; i<getMethodTable().getColumnCount();i++) {
+			getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
+		}
 		getTable().setFillsViewportHeight(true);
 		getTable().setDefaultEditor(Object.class, null);
 		for (int i =0; i<methodTable.getColumnCount();i++) {
-	         dtable.setDefaultRenderer(dtable.getColumnClass(i), new MethodCellRenderer());
-	    }
-   dtable.setPreferredScrollableViewportSize(new Dimension(1180, 170));
-	dtable.setFillsViewportHeight(true);
-	dtable.setDefaultEditor(Object.class, null);
+			dtable.setDefaultRenderer(dtable.getColumnClass(i), new MethodCellRenderer());
+		}
+		dtable.setPreferredScrollableViewportSize(new Dimension(1180, 170));
+		dtable.setFillsViewportHeight(true);
+		dtable.setDefaultEditor(Object.class, null);
 
-		
-		
+
+
 		JScrollPane scrollPane = new JScrollPane(getTable());
 
 		JScrollPane scrollPane2 = new JScrollPane(dtable);
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
-		
+
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new BorderLayout());
 		JPanel rulesPanel = new JPanel();
 		rulesPanel.setLayout(new GridLayout(2,0));
-		
+
 		JButton file = new JButton("Choose File");
 		JButton clear = new JButton("Clear File");
 
@@ -85,15 +88,17 @@ public class GUI extends JFrame {
 		thresholds.setPreferredSize(new Dimension(300, 50));
 
 		JPanel panel3 = new JPanel();
+		resultp = new ResultPanel();
 
-		
+
 		file.addActionListener(new ExcelReader(getMethodTable(),getDetailTable()));
 		clear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getMethodTable().clear();
-				getMethodTable().fireTableDataChanged();							
+				getMethodTable().fireTableDataChanged();	
+				resultp.clear();
 			}
-			
+
 		});
 
 		thresholds.addActionListener(new ActionListener() {
@@ -102,7 +107,7 @@ public class GUI extends JFrame {
 
 			}
 		});
-		
+
 		JPanel rulesp=new JPanel();
 		rulesp.setLayout(new GridLayout(0,2));
 		is_L=new JTextField(getLmRule().toString());
@@ -129,45 +134,46 @@ public class GUI extends JFrame {
 		add(panel1);
 		add(rulesPanel);
 		add(panel3);
+		add(resultp);
 	}
-	
-	
+
+
 	private void gui_thresholds() {
-		
+
 		JCheckBox locCheck = new JCheckBox();
 		JCheckBox maiorloc = new JCheckBox();
 		JCheckBox menorloc = new JCheckBox();
 		JLabel maiqloc = new JLabel(">");
 		JLabel menqloc = new JLabel("<");
-		
+
 		JCheckBox cycloCheck = new JCheckBox();
 		JCheckBox maiorcyclo = new JCheckBox();
 		JCheckBox menorcyclo = new JCheckBox();
 		JLabel maiqcyclo = new JLabel(">");
 		JLabel menqcyclo = new JLabel("<");
-		
+
 		JLabel andlong = new JLabel("AND");
 		JLabel orlong = new JLabel("OR");
 		JCheckBox andlongcheck = new JCheckBox();
 		JCheckBox orlongcheck = new JCheckBox();
-		
+
 		JCheckBox atfdCheck = new JCheckBox();
 		JCheckBox maioratfd = new JCheckBox();
 		JCheckBox menoratfd = new JCheckBox();
 		JLabel maiqatfd = new JLabel(">");
 		JLabel menqatfd = new JLabel("<");
-		
+
 		JLabel andfeat = new JLabel("AND");
 		JLabel orfeat = new JLabel("OR");
 		JCheckBox andfeatcheck= new JCheckBox();
 		JCheckBox orfeatcheck = new JCheckBox();
-		
+
 		JCheckBox laaCheck = new JCheckBox();
 		JCheckBox maiorlaa = new JCheckBox();
 		JCheckBox menorlaa = new JCheckBox();
 		JLabel maiqlaa = new JLabel(">");
 		JLabel menqlaa = new JLabel("<");
-		
+
 		double [] initial = new double [4];
 		initial[0]= Double.parseDouble(loc.getText());
 		initial[1]= Double.parseDouble(cyclo.getText());
@@ -176,7 +182,7 @@ public class GUI extends JFrame {
 
 		JPanel myPanel = new JPanel();
 		myPanel.setLayout(new GridLayout(2, 0));
-		
+
 		myPanel.add(new JLabel("Long method"));
 		myPanel.add(locCheck);
 		myPanel.add(new JLabel("LOC:"));
@@ -190,7 +196,7 @@ public class GUI extends JFrame {
 		myPanel.add(menqloc);
 		menqloc.setVisible(false);
 		myPanel.add(loc);
-		
+
 		myPanel.add(andlongcheck);
 		andlongcheck.setVisible(false);
 		myPanel.add(andlong);
@@ -199,8 +205,8 @@ public class GUI extends JFrame {
 		orlongcheck.setVisible(false);
 		myPanel.add(orlong);
 		orlong.setVisible(false);
-		
-		
+
+
 		myPanel.add(cycloCheck);
 		myPanel.add(new JLabel("CYCLO:"));
 		cyclo.setVisible(false);
@@ -213,7 +219,7 @@ public class GUI extends JFrame {
 		myPanel.add(menqcyclo);
 		menqcyclo.setVisible(false);
 		myPanel.add(cyclo);
-		
+
 		myPanel.add(new JLabel("Feature envy"));
 		myPanel.add(atfdCheck);
 		myPanel.add(new JLabel("ATFD:"));
@@ -227,7 +233,7 @@ public class GUI extends JFrame {
 		myPanel.add(menqatfd);
 		menqatfd.setVisible(false);
 		myPanel.add(atfd);
-		
+
 		myPanel.add(andfeatcheck);
 		andfeatcheck.setVisible(false);
 		myPanel.add(andfeat);
@@ -236,7 +242,7 @@ public class GUI extends JFrame {
 		orfeatcheck.setVisible(false);
 		myPanel.add(orfeat);
 		orfeat.setVisible(false);
-		
+
 		myPanel.add(laaCheck);
 		myPanel.add(new JLabel("LAA:"));
 		laa.setVisible(false);;
@@ -249,12 +255,12 @@ public class GUI extends JFrame {
 		myPanel.add(menqlaa);
 		menqlaa.setVisible(false);
 		myPanel.add(laa);
-		
-		
-		
+
+
+
 		//checkboxes do loc
-		
-		
+
+
 		locCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!maiorloc.isVisible() && !menorloc.isVisible()) {
@@ -311,13 +317,13 @@ public class GUI extends JFrame {
 						orlongcheck.setVisible(true);
 						orlong.setVisible(true);
 					}
-					
+
 				}
-				
-				
+
+
 			}
 		});
-		
+
 		maiorloc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getLmRule().setSymbol1(Symbol.MAIOR);
@@ -345,7 +351,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		menorloc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getLmRule().setSymbol1(Symbol.MENOR);
@@ -373,11 +379,11 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
-		
+
+
 		//checkboxes do cyclo
-		
-		
+
+
 		cycloCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!maiorcyclo.isVisible() && !menorcyclo.isVisible()) {
@@ -434,11 +440,11 @@ public class GUI extends JFrame {
 						orlongcheck.setVisible(true);
 						orlong.setVisible(true);
 					}
-					
+
 				}
 			}
 		});
-		
+
 		maiorcyclo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getLmRule().setSymbol2(Symbol.MAIOR);
@@ -466,7 +472,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		menorcyclo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getLmRule().setSymbol2(Symbol.MENOR);
@@ -494,21 +500,21 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
-		
+
+
 		//checkboxes do AND e OR do longmethod
-		
+
 		andlongcheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getLmRule().setCondition(Condition.AND);
 				if (andlongcheck.isSelected()) {
 					orlongcheck.setVisible(false);
 					orlong.setVisible(false);
-					}
+				}
 				if (!andlongcheck.isSelected()) {
 					orlongcheck.setVisible(true);
 					orlong.setVisible(true);
-					}
+				}
 			}
 		});
 		orlongcheck.addActionListener(new ActionListener() {
@@ -517,16 +523,16 @@ public class GUI extends JFrame {
 				if (orlongcheck.isSelected()) {
 					andlongcheck.setVisible(false);
 					andlong.setVisible(false);
-					}
+				}
 				if (!orlongcheck.isSelected()) {
 					andlongcheck.setVisible(true);
 					andlong.setVisible(true);
-					}
+				}
 			}
 		});
-			
+
 		//checkboxes do AND e OR do featureenvy
-		
+
 		andfeatcheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getFeRule().setCondition(Condition.AND);
@@ -553,10 +559,10 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		//checboxes do atfd
-		
-		
+
+
 		atfdCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!maioratfd.isVisible() && !menoratfd.isVisible()) {
@@ -616,7 +622,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		maioratfd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getFeRule().setSymbol1(Symbol.MAIOR);
@@ -644,7 +650,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		menoratfd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getFeRule().setSymbol1(Symbol.MENOR);
@@ -672,9 +678,9 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		//checkboxes do laa
-		
+
 		laaCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!maiorlaa.isVisible() && !menorlaa.isVisible()) {
@@ -734,7 +740,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		maiorlaa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getFeRule().setSymbol2(Symbol.MAIOR);
@@ -762,7 +768,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		menorlaa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getFeRule().setSymbol2(Symbol.MENOR);
@@ -790,7 +796,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		
+
 		int result = JOptionPane.showConfirmDialog(null, myPanel, 
 				"Please Enter Values", JOptionPane.OK_CANCEL_OPTION);
 		if(result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
@@ -801,35 +807,35 @@ public class GUI extends JFrame {
 		}
 		if(result ==JOptionPane.OK_OPTION) {
 			for (int i =0; i<getMethodTable().getColumnCount();i++) {
-		         getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
-		    }
+				getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
+			}
 			getMethodTable().fireTableDataChanged();	
-			
-			
+
+
 			try {
 				getLmRule().setVar1(Double.valueOf(loc.getText()));
 				getLmRule().setVar2(Double.valueOf(cyclo.getText()));
 				getFeRule().setVar1(Double.valueOf(atfd.getText()));
 				getFeRule().setVar2(Double.valueOf(laa.getText()));
 			} catch ( java.lang.NumberFormatException e) {
-				
+
 			}
-	
-			
+
+
 			is_L.setText(getLmRule().toString());
 			is_F.setText(getFeRule().toString());
-			
+
 		}
-		
+
 
 	}
 
 	public GUI() {
 		setTitle("Avaliação da qualidade de deteção de defeitos de desenho em projetos de software");
 		setLayout(new GridLayout(4,0));
-	    create_GUI();
+		create_GUI();
 	}
-	
+
 
 
 	public void open() {
@@ -839,7 +845,7 @@ public class GUI extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 	}
-	
+
 	public static void main(String[] args) throws FileNotFoundException {
 		GUI f=new GUI();
 		f.open();
