@@ -1,6 +1,5 @@
 package es;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.util.Vector;
 
@@ -9,52 +8,51 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 
-
-class MethodTable extends AbstractTableModel {
+public class MethodTable extends AbstractTableModel {
+	
 	final String[] columnNames = {"MethodID", "package","class", "method", "LOC", "CYCLO", "ATFD", "LAA", "is_long_method", "iPlasma", "PMD", 
-			"is_feature_envy"};
+	"is_feature_envy"};
+	
 	final Class[] columnClasses = {Integer.class, String.class, String.class, String.class , Integer.class, Integer.class, Integer.class,
 			Double.class,Boolean.class,Boolean.class, Boolean.class, Boolean.class};  
-
+	
 	final Vector data = new Vector();
-
+	
 	public void clear() {
 		data.clear();
 	}
-
-	public void addMethod(Method m) {
-	      data.addElement(m);
-	      fireTableRowsInserted(data.size()-1, data.size()-1);
-	   }
 	
+	public void addMethod(Method m) {
+		data.addElement(m);
+		fireTableRowsInserted(data.size()-1, data.size()-1);
+	}
 
+	
 	@Override
 	public int getRowCount() {
 		return data.size();
 	}
 
-
 	@Override
 	public int getColumnCount() {
 		return columnNames.length;
 	}
-	
 
 	public String getColumnName(int col) {
-	      return columnNames[col];
+		return columnNames[col];
+	}
+
+	
+	public Class getColumnClass(int c) {
+		return columnClasses[1];
 	}
 	
-	
-	 public Class getColumnClass(int c) {
-	      return columnClasses[1];
-	   }
-
 	public Object getValueAtRow(int row) {
-	      Method m = (Method) data.elementAt(row);
-	      return m;
+		Method m = (Method) data.elementAt(row);
+		return m;
 	}
-	
 
+	
 	@Override
 	public Object getValueAt(int row, int col) {
 		Method m = (Method) data.elementAt(row);
@@ -73,11 +71,12 @@ class MethodTable extends AbstractTableModel {
 		else return null;
 	}
 }
+
 class MethodCellRenderer extends DefaultTableCellRenderer {
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column){
-	MethodTable wtm = (MethodTable) table.getModel();
-	Method m = (Method) wtm.getValueAtRow(row);  
-	return super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);
+		MethodTable wtm = (MethodTable) table.getModel();
+		Method m = (Method) wtm.getValueAtRow(row);  
+		return super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);
 	}
 }

@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
-
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 
@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -24,14 +25,9 @@ import javax.swing.JTextField;
 import es.DetailTable;
 import es.ResultPanel;
 
-
-
-
 public class GUI extends JFrame {
 	private MethodTable methodTable;
-
 	private DetailTable detailTable;
-
 	private JTable table;
 	private JTextField is_L;
 	private JTextField is_F;
@@ -39,45 +35,41 @@ public class GUI extends JFrame {
 	private JTextField cyclo =new JTextField("10");
 	private JTextField atfd = new JTextField("4");
 	private JTextField laa = new JTextField("0.42");
-
 	private JTable dtable;
-
+	
 	private LMRule lmRule=new LMRule(Symbol.MAIOR,80,Condition.AND,Symbol.MAIOR,10);
 	private FERule feRule=new FERule(Symbol.MAIOR,4,Condition.AND,Symbol.MENOR,0.42);
 	
 	private ResultPanel resultp = new ResultPanel();
-
+	
 	public void create_GUI() {
 		methodTable = new MethodTable();
-
 		detailTable = new DetailTable();
-		table = new JTable(getMethodTable());
-
-		dtable = new JTable(detailTable);
-		for (int i =0; i<getMethodTable().getColumnCount();i++) {
-			getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
-		}
+	    table = new JTable(getMethodTable());
+	    dtable = new JTable(getDetailTable());
+	    for (int i =0; i<getMethodTable().getColumnCount();i++) {
+	         getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
+	    }
 		getTable().setFillsViewportHeight(true);
 		getTable().setDefaultEditor(Object.class, null);
-		for (int i =0; i<methodTable.getColumnCount();i++) {
-			dtable.setDefaultRenderer(dtable.getColumnClass(i), new MethodCellRenderer());
-		}
-		dtable.setPreferredScrollableViewportSize(new Dimension(1180, 170));
-		dtable.setFillsViewportHeight(true);
-		dtable.setDefaultEditor(Object.class, null);
-
-
-
+		
+		for (int i =0; i<getDtable().getColumnCount();i++) {
+			getDtable().setDefaultRenderer(getDtable().getColumnClass(i), new DetailMethodCellRenderer());
+		 }
+	    
+		getDtable().setFillsViewportHeight(true);
+		getDtable().setDefaultEditor(Object.class, null);
+		
 		JScrollPane scrollPane = new JScrollPane(getTable());
-
-		JScrollPane scrollPane2 = new JScrollPane(dtable);
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
-
+		JScrollPane scrollPane2 = new JScrollPane(getDtable());
+		
+		
+		
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new BorderLayout());
 		JPanel rulesPanel = new JPanel();
 		rulesPanel.setLayout(new GridLayout(2,0));
-
+		
 		JButton file = new JButton("Choose File");
 		JButton clear = new JButton("Clear File");
 
@@ -86,28 +78,26 @@ public class GUI extends JFrame {
 		clear.setPreferredSize(new Dimension(300, 50));
 		file.setPreferredSize(new Dimension(300, 50));
 		thresholds.setPreferredSize(new Dimension(300, 50));
-
+		
 		JPanel panel3 = new JPanel();
+		panel3.setLayout(new BorderLayout());
 		resultp = new ResultPanel();
-
-
-		file.addActionListener(new ExcelReader(getMethodTable(),getDetailTable()));
+		file.addActionListener(new ExcelReader(getMethodTable(), getDetailTable(), getResultp(),getLmRule()));
 		clear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getMethodTable().clear();
 				getMethodTable().fireTableDataChanged();	
-				resultp.clear();
+				getDetailTable().clear();
+				getDetailTable().fireTableDataChanged();
+				getResultp().clear();	
 			}
-
+			
 		});
-
 		thresholds.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				gui_thresholds();
-
 			}
 		});
-
 		JPanel rulesp=new JPanel();
 		rulesp.setLayout(new GridLayout(0,2));
 		is_L=new JTextField(getLmRule().toString());
@@ -126,716 +116,158 @@ public class GUI extends JFrame {
 		bp2.add(file);
 		bp2.add(clear);
 		panel1.add(bp2,BorderLayout.NORTH);
-		panel1.add(scrollPane,BorderLayout.CENTER);
 		panel1.add(scrollPane);
 		JLabel lb=new JLabel("RESULTS");
-		panel3.add(lb);
-		panel3.add(scrollPane2);
+		JPanel auxpn=new JPanel();
+		auxpn.add(lb);
+		panel3.add(auxpn,BorderLayout.NORTH);
+		panel3.add(scrollPane2,BorderLayout.CENTER);
 		add(panel1);
 		add(rulesPanel);
 		add(panel3);
-		add(resultp);
+		add(getResultp());
 	}
-
+	
 
 	private void gui_thresholds() {
-
-		JCheckBox locCheck = new JCheckBox();
-		JCheckBox maiorloc = new JCheckBox();
-		JCheckBox menorloc = new JCheckBox();
-		JLabel maiqloc = new JLabel(">");
-		JLabel menqloc = new JLabel("<");
-
-		JCheckBox cycloCheck = new JCheckBox();
-		JCheckBox maiorcyclo = new JCheckBox();
-		JCheckBox menorcyclo = new JCheckBox();
-		JLabel maiqcyclo = new JLabel(">");
-		JLabel menqcyclo = new JLabel("<");
-
-		JLabel andlong = new JLabel("AND");
-		JLabel orlong = new JLabel("OR");
-		JCheckBox andlongcheck = new JCheckBox();
-		JCheckBox orlongcheck = new JCheckBox();
-
-		JCheckBox atfdCheck = new JCheckBox();
-		JCheckBox maioratfd = new JCheckBox();
-		JCheckBox menoratfd = new JCheckBox();
-		JLabel maiqatfd = new JLabel(">");
-		JLabel menqatfd = new JLabel("<");
-
-		JLabel andfeat = new JLabel("AND");
-		JLabel orfeat = new JLabel("OR");
-		JCheckBox andfeatcheck= new JCheckBox();
-		JCheckBox orfeatcheck = new JCheckBox();
-
-		JCheckBox laaCheck = new JCheckBox();
-		JCheckBox maiorlaa = new JCheckBox();
-		JCheckBox menorlaa = new JCheckBox();
-		JLabel maiqlaa = new JLabel(">");
-		JLabel menqlaa = new JLabel("<");
-
 		double [] initial = new double [4];
 		initial[0]= Double.parseDouble(loc.getText());
 		initial[1]= Double.parseDouble(cyclo.getText());
 		initial[2]= Double.parseDouble(atfd.getText());
 		initial[3]= Double.parseDouble(laa.getText());
-
-		JPanel myPanel = new JPanel();
-		myPanel.setLayout(new GridLayout(2, 0));
-
-		myPanel.add(new JLabel("Long method"));
-		myPanel.add(locCheck);
-		myPanel.add(new JLabel("LOC:"));
-		loc.setVisible(false);;
-		myPanel.add(maiorloc);
-		maiorloc.setVisible(false);
-		myPanel.add(maiqloc);
-		maiqloc.setVisible(false);
-		myPanel.add(menorloc);
-		menorloc.setVisible(false);
-		myPanel.add(menqloc);
-		menqloc.setVisible(false);
-		myPanel.add(loc);
-
-		myPanel.add(andlongcheck);
-		andlongcheck.setVisible(false);
-		myPanel.add(andlong);
-		andlong.setVisible(false);
-		myPanel.add(orlongcheck);
-		orlongcheck.setVisible(false);
-		myPanel.add(orlong);
-		orlong.setVisible(false);
-
-
-		myPanel.add(cycloCheck);
-		myPanel.add(new JLabel("CYCLO:"));
-		cyclo.setVisible(false);
-		myPanel.add(maiorcyclo);
-		maiorcyclo.setVisible(false);
-		myPanel.add(maiqcyclo);
-		maiqcyclo.setVisible(false);
-		myPanel.add(menorcyclo);
-		menorcyclo.setVisible(false);
-		myPanel.add(menqcyclo);
-		menqcyclo.setVisible(false);
-		myPanel.add(cyclo);
-
-		myPanel.add(new JLabel("Feature envy"));
-		myPanel.add(atfdCheck);
-		myPanel.add(new JLabel("ATFD:"));
-		atfd.setVisible(false);
-		myPanel.add(maioratfd);
-		maioratfd.setVisible(false);
-		myPanel.add(maiqatfd);
-		maiqatfd.setVisible(false);
-		myPanel.add(menoratfd);
-		menoratfd.setVisible(false);
-		myPanel.add(menqatfd);
-		menqatfd.setVisible(false);
-		myPanel.add(atfd);
-
-		myPanel.add(andfeatcheck);
-		andfeatcheck.setVisible(false);
-		myPanel.add(andfeat);
-		andfeat.setVisible(false);
-		myPanel.add(orfeatcheck);
-		orfeatcheck.setVisible(false);
-		myPanel.add(orfeat);
-		orfeat.setVisible(false);
-
-		myPanel.add(laaCheck);
-		myPanel.add(new JLabel("LAA:"));
-		laa.setVisible(false);;
-		myPanel.add(maiorlaa);
-		maiorlaa.setVisible(false);
-		myPanel.add(maiqlaa);
-		maiqlaa.setVisible(false);
-		myPanel.add(menorlaa);
-		menorlaa.setVisible(false);
-		myPanel.add(menqlaa);
-		menqlaa.setVisible(false);
-		myPanel.add(laa);
-
-
-
-		//checkboxes do loc
-
-
-		locCheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (!maiorloc.isVisible() && !menorloc.isVisible()) {
-					maiorloc.setVisible(true);
-					maiqloc.setVisible(true);
-					menorloc.setVisible(true);
-					menqloc.setVisible(true);
-				}
-				if (maiorloc.isSelected() || (!maiorloc.isSelected() && menorloc.isSelected())) {
-					loc.setVisible(false);
-					maiorloc.setVisible(false);
-					maiqloc.setVisible(false);
-				} 
-				if (menorloc.isSelected() || (!menorloc.isSelected() && maiorloc.isSelected())) {
-					loc.setVisible(false);
-					menorloc.setVisible(false);
-					menqloc.setVisible(false);
-				} 
-				if (maiorloc.isSelected() && locCheck.isSelected()) {
-					loc.setVisible(true);
-					maiorloc.setVisible(true);
-					maiqloc.setVisible(true);
-				}
-				if (menorloc.isSelected() && locCheck.isSelected()) {
-					loc.setVisible(true);
-					menorloc.setVisible(true);
-					menqloc.setVisible(true);
-				}
-				if (!menorloc.isSelected() && !maiorloc.isSelected() && !locCheck.isSelected()) {
-					loc.setVisible(false);
-					maiorloc.setVisible(false);
-					maiqloc.setVisible(false);
-					menorloc.setVisible(false);
-					menqloc.setVisible(false);
-				}
-				if (!locCheck.isSelected() || !cycloCheck.isSelected()) {
-					andlongcheck.setVisible(false);
-					andlong.setVisible(false);
-					orlongcheck.setVisible(false);
-					orlong.setVisible(false);
-				}
-				if ((locCheck.isSelected() && cycloCheck.isSelected()) && ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() ))) {
-					if (!andlongcheck.isSelected() && !orlongcheck.isSelected()) {
-						orlongcheck.setVisible(true);
-						orlong.setVisible(true);
-						andlongcheck.setVisible(true);
-						andlong.setVisible(true);
-					}
-					if(andlongcheck.isSelected() && !orlongcheck.isSelected()) {
-						andlongcheck.setVisible(true);
-						andlong.setVisible(true);
-					}
-					if(orlongcheck.isSelected() && !andlongcheck.isSelected()) {
-						orlongcheck.setVisible(true);
-						orlong.setVisible(true);
-					}
-
-				}
-
-
-			}
-		});
-
-		maiorloc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getLmRule().setSymbol1(Symbol.MAIOR);
-				if (!menorloc.isSelected() && maiorloc.isSelected()) {
-					loc.setVisible(true);
-					menorloc.setVisible(!menorloc.isVisible());
-					menqloc.setVisible(!menqloc.isVisible());
-				} 
-				if (!menorloc.isSelected() && !maiorloc.isSelected()) {
-					loc.setVisible(false);
-					menorloc.setVisible(!menorloc.isVisible());
-					menqloc.setVisible(!menqloc.isVisible());
-				} 
-				if (!maiorloc.isSelected() || !maiorcyclo.isSelected() || !menorloc.isSelected() || !menorcyclo.isSelected() && (!cycloCheck.isSelected() || !locCheck.isSelected())) {
-					andlongcheck.setVisible(false);
-					andlong.setVisible(false);
-					orlongcheck.setVisible(false);
-					orlong.setVisible(false);
-				}
-				if ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() )) {
-					andlongcheck.setVisible(true);
-					andlong.setVisible(true);
-					orlongcheck.setVisible(true);
-					orlong.setVisible(true);
-				}
-			}
-		});
-
-		menorloc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getLmRule().setSymbol1(Symbol.MENOR);
-				if (!maiorloc.isSelected() && menorloc.isSelected()) {
-					loc.setVisible(true);
-					maiorloc.setVisible(!maiorloc.isVisible());
-					maiqloc.setVisible(!maiqloc.isVisible());
-				} 
-				if (!maiorloc.isSelected() && !menorloc.isSelected()) {
-					loc.setVisible(false);
-					maiorloc.setVisible(!maiorloc.isVisible());
-					maiqloc.setVisible(!maiqloc.isVisible());
-				} 
-				if (!maiorloc.isSelected() || !maiorcyclo.isSelected() || !menorloc.isSelected() || !menorcyclo.isSelected() && (!cycloCheck.isSelected() || !locCheck.isSelected())) {
-					andlongcheck.setVisible(false);
-					andlong.setVisible(false);
-					orlongcheck.setVisible(false);
-					orlong.setVisible(false);
-				}
-				if ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() )) {
-					andlongcheck.setVisible(true);
-					andlong.setVisible(true);
-					orlongcheck.setVisible(true);
-					orlong.setVisible(true);
-				}
-			}
-		});
-
-
-		//checkboxes do cyclo
-
-
-		cycloCheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (!maiorcyclo.isVisible() && !menorcyclo.isVisible()) {
-					maiorcyclo.setVisible(true);
-					maiqcyclo.setVisible(true);
-					menorcyclo.setVisible(true);
-					menqcyclo.setVisible(true);
-				}
-				if (maiorcyclo.isSelected() || (!maiorcyclo.isSelected() && menorcyclo.isSelected())) {
-					cyclo.setVisible(false);
-					maiorcyclo.setVisible(false);
-					maiqcyclo.setVisible(false);
-				} 
-				if (menorcyclo.isSelected() || (!menorcyclo.isSelected() && maiorcyclo.isSelected())) {
-					cyclo.setVisible(false);
-					menorcyclo.setVisible(false);
-					menqcyclo.setVisible(false);
-				} 
-				if (maiorcyclo.isSelected() && cycloCheck.isSelected()) {
-					cyclo.setVisible(true);
-					maiorcyclo.setVisible(true);
-					maiqcyclo.setVisible(true);
-				}
-				if (menorcyclo.isSelected() && cycloCheck.isSelected()) {
-					cyclo.setVisible(true);
-					menorcyclo.setVisible(true);
-					menqcyclo.setVisible(true);
-				}
-				if (!menorcyclo.isSelected() && !maiorcyclo.isSelected() && !cycloCheck.isSelected()) {
-					cyclo.setVisible(false);
-					maiorcyclo.setVisible(false);
-					maiqcyclo.setVisible(false);
-					menorcyclo.setVisible(false);
-					menqcyclo.setVisible(false);
-				}
-				if (!locCheck.isSelected() || !cycloCheck.isSelected()) {
-					andlongcheck.setVisible(false);
-					andlong.setVisible(false);
-					orlongcheck.setVisible(false);
-					orlong.setVisible(false);
-				}
-				if ((locCheck.isSelected() && cycloCheck.isSelected()) && ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() ))) {
-					if (!andlongcheck.isSelected() && !orlongcheck.isSelected()) {
-						orlongcheck.setVisible(true);
-						orlong.setVisible(true);
-						andlongcheck.setVisible(true);
-						andlong.setVisible(true);
-					}
-					if(andlongcheck.isSelected() && !orlongcheck.isSelected()) {
-						andlongcheck.setVisible(true);
-						andlong.setVisible(true);
-					}
-					if(orlongcheck.isSelected() && !andlongcheck.isSelected()) {
-						orlongcheck.setVisible(true);
-						orlong.setVisible(true);
-					}
-
-				}
-			}
-		});
-
-		maiorcyclo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getLmRule().setSymbol2(Symbol.MAIOR);
-				if (!menorcyclo.isSelected() && maiorcyclo.isSelected()) {
-					cyclo.setVisible(true);
-					menorcyclo.setVisible(!menorcyclo.isVisible());
-					menqcyclo.setVisible(!menqcyclo.isVisible());
-				} 
-				if (!menorcyclo.isSelected() && !maiorcyclo.isSelected()) {
-					cyclo.setVisible(false);
-					menorcyclo.setVisible(!menorcyclo.isVisible());
-					menqcyclo.setVisible(!menqcyclo.isVisible());
-				} 
-				if (!maiorloc.isSelected() || !maiorcyclo.isSelected() || !menorloc.isSelected() || !menorcyclo.isSelected() && (!cycloCheck.isSelected() || !locCheck.isSelected())) {
-					andlongcheck.setVisible(false);
-					andlong.setVisible(false);
-					orlongcheck.setVisible(false);
-					orlong.setVisible(false);
-				}
-				if ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() )) {
-					andlongcheck.setVisible(true);
-					andlong.setVisible(true);
-					orlongcheck.setVisible(true);
-					orlong.setVisible(true);
-				}
-			}
-		});
-
-		menorcyclo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getLmRule().setSymbol2(Symbol.MENOR);
-				if (!maiorcyclo.isSelected() && menorcyclo.isSelected()) {
-					cyclo.setVisible(true);
-					maiorcyclo.setVisible(!maiorcyclo.isVisible());
-					maiqcyclo.setVisible(!maiqcyclo.isVisible());
-				} 
-				if (!maiorcyclo.isSelected() && !menorcyclo.isSelected()) {
-					cyclo.setVisible(false);
-					maiorcyclo.setVisible(!maiorcyclo.isVisible());
-					maiqcyclo.setVisible(!maiqcyclo.isVisible());
-				} 
-				if (!maiorloc.isSelected() || !maiorcyclo.isSelected() || !menorloc.isSelected() || !menorcyclo.isSelected() && (!cycloCheck.isSelected() || !locCheck.isSelected())) {
-					andlongcheck.setVisible(false);
-					andlong.setVisible(false);
-					orlongcheck.setVisible(false);
-					orlong.setVisible(false);
-				}
-				if ((maiorcyclo.isSelected() && maiorloc.isSelected()) || (maiorcyclo.isSelected() && menorloc.isSelected()) || (menorcyclo.isSelected() && maiorloc.isSelected()) || (menorcyclo.isSelected() && menorloc.isSelected())  && (locCheck.isSelected() && cycloCheck.isSelected() )) {
-					andlongcheck.setVisible(true);
-					andlong.setVisible(true);
-					orlongcheck.setVisible(true);
-					orlong.setVisible(true);
-				}
-			}
-		});
-
-
-		//checkboxes do AND e OR do longmethod
-
-		andlongcheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getLmRule().setCondition(Condition.AND);
-				if (andlongcheck.isSelected()) {
-					orlongcheck.setVisible(false);
-					orlong.setVisible(false);
-				}
-				if (!andlongcheck.isSelected()) {
-					orlongcheck.setVisible(true);
-					orlong.setVisible(true);
-				}
-			}
-		});
-		orlongcheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getLmRule().setCondition(Condition.OR);
-				if (orlongcheck.isSelected()) {
-					andlongcheck.setVisible(false);
-					andlong.setVisible(false);
-				}
-				if (!orlongcheck.isSelected()) {
-					andlongcheck.setVisible(true);
-					andlong.setVisible(true);
-				}
-			}
-		});
-
-		//checkboxes do AND e OR do featureenvy
-
-		andfeatcheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getFeRule().setCondition(Condition.AND);
-				if (andfeatcheck.isSelected()) {
-					orfeatcheck.setVisible(false);
-					orfeat.setVisible(false);
-				}
-				if (!andfeatcheck.isSelected()) {
-					orfeatcheck.setVisible(true);
-					orfeat.setVisible(true);
-				}
-			}
-		});
-		orfeatcheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getFeRule().setCondition(Condition.OR);
-				if (orfeatcheck.isSelected()) {
-					andfeatcheck.setVisible(false);
-					andfeat.setVisible(false);
-				}
-				if (!orfeatcheck.isSelected()) {
-					andfeatcheck.setVisible(true);
-					andfeat.setVisible(true);
-				}
-			}
-		});
-
-		//checboxes do atfd
-
-
-		atfdCheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (!maioratfd.isVisible() && !menoratfd.isVisible()) {
-					maioratfd.setVisible(true);
-					maiqatfd.setVisible(true);
-					menoratfd.setVisible(true);
-					menqatfd.setVisible(true);
-				}
-				if (maioratfd.isSelected() || (!maioratfd.isSelected() && menoratfd.isSelected())) {
-					atfd.setVisible(false);
-					maioratfd.setVisible(false);
-					maiqatfd.setVisible(false);
-				} 
-				if (menoratfd.isSelected() || (!menoratfd.isSelected() && maioratfd.isSelected())) {
-					atfd.setVisible(false);
-					menoratfd.setVisible(false);
-					menqatfd.setVisible(false);
-				} 
-				if (maioratfd.isSelected() && atfdCheck.isSelected()) {
-					atfd.setVisible(true);
-					maioratfd.setVisible(true);
-					maiqatfd.setVisible(true);
-				}
-				if (menoratfd.isSelected() && atfdCheck.isSelected()) {
-					atfd.setVisible(true);
-					menoratfd.setVisible(true);
-					menqatfd.setVisible(true);
-				}
-				if (!menoratfd.isSelected() && !maioratfd.isSelected() && !atfdCheck.isSelected()) {
-					atfd.setVisible(false);
-					maioratfd.setVisible(false);
-					maiqatfd.setVisible(false);
-					menoratfd.setVisible(false);
-					menqatfd.setVisible(false);
-				}
-				if (!atfdCheck.isSelected() || !laaCheck.isSelected()) {
-					andfeatcheck.setVisible(false);
-					andfeat.setVisible(false);
-					orfeatcheck.setVisible(false);
-					orfeat.setVisible(false);
-				}
-				if ((laaCheck.isSelected() && atfdCheck.isSelected()) && ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() ))) {
-					if (!andfeatcheck.isSelected() && !orfeatcheck.isSelected()) {
-						orfeatcheck.setVisible(true);
-						orfeat.setVisible(true);
-						andfeatcheck.setVisible(true);
-						andfeat.setVisible(true);
-					}
-					if(andfeatcheck.isSelected() && !orfeatcheck.isSelected()) {
-						andfeatcheck.setVisible(true);
-						andfeat.setVisible(true);
-					}
-					if(orfeatcheck.isSelected() && !andfeatcheck.isSelected()) {
-						orfeatcheck.setVisible(true);
-						orfeat.setVisible(true);
-					}
-				}
-			}
-		});
-
-		maioratfd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getFeRule().setSymbol1(Symbol.MAIOR);
-				if (!menoratfd.isSelected() && maioratfd.isSelected()) {
-					atfd.setVisible(true);
-					menoratfd.setVisible(!menoratfd.isVisible());
-					menqatfd.setVisible(!menqatfd.isVisible());
-				} 
-				if (!menoratfd.isSelected() && !maioratfd.isSelected()) {
-					atfd.setVisible(false);
-					menoratfd.setVisible(!menoratfd.isVisible());
-					menqatfd.setVisible(!menqatfd.isVisible());
-				} 
-				if (!maiorlaa.isSelected() || !maioratfd.isSelected() || !menorlaa.isSelected() || !menoratfd.isSelected() && (!atfdCheck.isSelected() || !laaCheck.isSelected())) {
-					andfeatcheck.setVisible(false);
-					andfeat.setVisible(false);
-					orfeatcheck.setVisible(false);
-					orfeat.setVisible(false);
-				}
-				if ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() )) {
-					andfeatcheck.setVisible(true);
-					andfeat.setVisible(true);
-					orfeatcheck.setVisible(true);
-					orfeat.setVisible(true);
-				}
-			}
-		});
-
-		menoratfd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getFeRule().setSymbol1(Symbol.MENOR);
-				if (!maioratfd.isSelected() && menoratfd.isSelected()) {
-					atfd.setVisible(true);
-					maioratfd.setVisible(!maioratfd.isVisible());
-					maiqatfd.setVisible(!maiqatfd.isVisible());
-				} 
-				if (!maioratfd.isSelected() && !menoratfd.isSelected()) {
-					atfd.setVisible(false);
-					maioratfd.setVisible(!maioratfd.isVisible());
-					maiqatfd.setVisible(!maiqatfd.isVisible());
-				} 
-				if (!maiorlaa.isSelected() || !maioratfd.isSelected() || !menorlaa.isSelected() || !menoratfd.isSelected() && (!atfdCheck.isSelected() || !laaCheck.isSelected())) {
-					andfeatcheck.setVisible(false);
-					andfeat.setVisible(false);
-					orfeatcheck.setVisible(false);
-					orfeat.setVisible(false);
-				}
-				if ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() )) {
-					andfeatcheck.setVisible(true);
-					andfeat.setVisible(true);
-					orfeatcheck.setVisible(true);
-					orfeat.setVisible(true);
-				}
-			}
-		});
-
-		//checkboxes do laa
-
-		laaCheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (!maiorlaa.isVisible() && !menorlaa.isVisible()) {
-					maiorlaa.setVisible(true);
-					maiqlaa.setVisible(true);
-					menorlaa.setVisible(true);
-					menqlaa.setVisible(true);
-				}
-				if (maiorlaa.isSelected() || (!maiorlaa.isSelected() && menorlaa.isSelected())) {
-					laa.setVisible(false);
-					maiorlaa.setVisible(false);
-					maiqlaa.setVisible(false);
-				} 
-				if (menorlaa.isSelected() || (!menorlaa.isSelected() && maiorlaa.isSelected())) {
-					laa.setVisible(false);
-					menorlaa.setVisible(false);
-					menqlaa.setVisible(false);
-				} 
-				if (maiorlaa.isSelected() && laaCheck.isSelected()) {
-					laa.setVisible(true);
-					maiorlaa.setVisible(true);
-					maiqlaa.setVisible(true);
-				}
-				if (menorlaa.isSelected() && laaCheck.isSelected()) {
-					laa.setVisible(true);
-					menorlaa.setVisible(true);
-					menqlaa.setVisible(true);
-				}
-				if (!menorlaa.isSelected() && !maiorlaa.isSelected() && !laaCheck.isSelected()) {
-					laa.setVisible(false);
-					maiorlaa.setVisible(false);
-					maiqlaa.setVisible(false);
-					menorlaa.setVisible(false);
-					menqlaa.setVisible(false);
-				}
-				if (!atfdCheck.isSelected() || !laaCheck.isSelected()) {
-					andfeatcheck.setVisible(false);
-					andfeat.setVisible(false);
-					orfeatcheck.setVisible(false);
-					orfeat.setVisible(false);
-				}
-				if ((laaCheck.isSelected() && atfdCheck.isSelected()) && ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() ))) {
-					if (!andfeatcheck.isSelected() && !orfeatcheck.isSelected()) {
-						orfeatcheck.setVisible(true);
-						orfeat.setVisible(true);
-						andfeatcheck.setVisible(true);
-						andfeat.setVisible(true);
-					}
-					if(andfeatcheck.isSelected() && !orfeatcheck.isSelected()) {
-						andfeatcheck.setVisible(true);
-						andfeat.setVisible(true);
-					}
-					if(orfeatcheck.isSelected() && !andfeatcheck.isSelected()) {
-						orfeatcheck.setVisible(true);
-						orfeat.setVisible(true);
-					}
-				}
-			}
-		});
-
-		maiorlaa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getFeRule().setSymbol2(Symbol.MAIOR);
-				if (!menorlaa.isSelected() && maiorlaa.isSelected()) {
-					laa.setVisible(true);
-					menorlaa.setVisible(!menorlaa.isVisible());
-					menqlaa.setVisible(!menqlaa.isVisible());
-				} 
-				if (!menorlaa.isSelected() && !maiorlaa.isSelected()) {
-					laa.setVisible(false);
-					menorlaa.setVisible(!menorlaa.isVisible());
-					menqlaa.setVisible(!menqlaa.isVisible());
-				} 
-				if (!maiorlaa.isSelected() || !maioratfd.isSelected() || !menorlaa.isSelected() || !menoratfd.isSelected() && (!atfdCheck.isSelected() || !laaCheck.isSelected())) {
-					andfeatcheck.setVisible(false);
-					andfeat.setVisible(false);
-					orfeatcheck.setVisible(false);
-					orfeat.setVisible(false);
-				}
-				if ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() )) {
-					andfeatcheck.setVisible(true);
-					andfeat.setVisible(true);
-					orfeatcheck.setVisible(true);
-					orfeat.setVisible(true);
-				}
-			}
-		});
-
-		menorlaa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getFeRule().setSymbol2(Symbol.MENOR);
-				if (!maiorlaa.isSelected() && menorlaa.isSelected()) {
-					laa.setVisible(true);
-					maiorlaa.setVisible(!maiorlaa.isVisible());
-					maiqlaa.setVisible(!maiqlaa.isVisible());
-				} 
-				if (!maiorlaa.isSelected() && !menorlaa.isSelected()) {
-					laa.setVisible(false);
-					maiorlaa.setVisible(!maiorlaa.isVisible());
-					maiqlaa.setVisible(!maiqlaa.isVisible());
-				} 
-				if (!maiorlaa.isSelected() || !maioratfd.isSelected() || !menorlaa.isSelected() || !menoratfd.isSelected() && (!atfdCheck.isSelected() || !laaCheck.isSelected())) {
-					andfeatcheck.setVisible(false);
-					andfeat.setVisible(false);
-					orfeatcheck.setVisible(false);
-					orfeat.setVisible(false);
-				}
-				if ((maioratfd.isSelected() && maiorlaa.isSelected()) || (maioratfd.isSelected() && menorlaa.isSelected()) || (menoratfd.isSelected() && maiorlaa.isSelected()) || (menoratfd.isSelected() && menorlaa.isSelected())  && (laaCheck.isSelected() && atfdCheck.isSelected() )) {
-					andfeatcheck.setVisible(true);
-					andfeat.setVisible(true);
-					orfeatcheck.setVisible(true);
-					orfeat.setVisible(true);
-				}
-			}
-		});
-
-		int result = JOptionPane.showConfirmDialog(null, myPanel, 
-				"Please Enter Values", JOptionPane.OK_CANCEL_OPTION);
+		AllEvents m=new AllEvents(lmRule,feRule);
+		JPanel panel=new JPanel();
+		panel.setLayout(new GridLayout(3,0));
+		
+		JPanel panellm=new JPanel();
+		panellm.setLayout(new FlowLayout());
+		JLabel lmname= new JLabel("Long Method -> ");
+		panellm.add(lmname);
+		//grupo de LOC > ou <
+		ButtonGroup groupLoc = new ButtonGroup();
+		JLabel loclb=new JLabel("LOC: ");
+		JRadioButton maiorLoc = new JRadioButton(">");		
+		m.addProperties(maiorLoc,"loc >");
+		JRadioButton menorLoc = new JRadioButton("<");
+		m.addProperties(menorLoc,"loc <");
+		groupLoc.add(maiorLoc);
+		groupLoc.add(menorLoc);
+		panellm.add(loclb);
+		panellm.add(maiorLoc);
+		panellm.add(menorLoc);
+		panellm.add(loc);
+		
+		//grupo de AND and OR
+		ButtonGroup groupConditional = new ButtonGroup();
+		JRadioButton andC = new JRadioButton("AND");
+		m.addProperties(andC,"andLM");
+		JRadioButton orC = new JRadioButton("OR");
+		m.addProperties(orC,"orLM");
+		groupConditional.add(andC);
+		groupConditional.add(orC);
+		panellm.add(andC);
+		panellm.add(orC);
+		
+		//grupo de CYCLO > ou <
+		ButtonGroup groupCyclo = new ButtonGroup();
+		JLabel cyclolb=new JLabel("CYCLO:");
+		JRadioButton maiorCyclo = new JRadioButton(">");
+		m.addProperties(maiorCyclo,"cyclo >");
+		JRadioButton menorCyclo = new JRadioButton("<");
+		m.addProperties(menorCyclo,"cyclo <");
+		
+		groupCyclo.add(maiorCyclo);
+		groupCyclo.add(menorCyclo);
+		panellm.add(cyclolb);
+		panellm.add(maiorCyclo);
+		panellm.add(menorCyclo);
+		panellm.add(cyclo);
+		
+		//Panel de Feature Envy
+		JPanel panelfe=new JPanel();
+		panelfe.setLayout(new FlowLayout());
+		JLabel fename= new JLabel("Feature Envy ->");
+		panelfe.add(fename);
+		
+		//grupo de ATFD > ou <
+		
+		ButtonGroup groupAtfd = new ButtonGroup();
+		JLabel atfdlb=new JLabel("ATFD:");
+		JRadioButton maiorAtfd = new JRadioButton(">");
+		m.addProperties(maiorAtfd,"atfd >");
+		JRadioButton menorAtfd = new JRadioButton("<");
+		m.addProperties(menorAtfd,"atfd <");
+		
+		groupAtfd.add(maiorAtfd);
+		groupAtfd.add(menorAtfd);
+		panelfe.add(atfdlb);
+		panelfe.add(maiorAtfd);
+		panelfe.add(menorAtfd);
+		panelfe.add(atfd);
+		
+		//grupo de AND and OR
+		ButtonGroup groupConditionalfe = new ButtonGroup();
+		JRadioButton andCfe = new JRadioButton("AND");
+		m.addProperties(andCfe,"andFE");
+		JRadioButton orCfe = new JRadioButton("OR");
+		m.addProperties(orCfe,"orFE");
+		groupConditionalfe.add(andCfe);
+		groupConditionalfe.add(orCfe);
+		panelfe.add(andCfe);
+		panelfe.add(orCfe);
+		
+		//grupo de LAA > ou <
+		ButtonGroup groupLaa = new ButtonGroup();
+		JLabel laalb=new JLabel(" LAA:  ");
+		JRadioButton maiorLaa = new JRadioButton(">");
+		m.addProperties(maiorLaa,"laa >");
+		JRadioButton menorLaa = new JRadioButton("<");
+		m.addProperties(menorLaa,"laa <");
+		groupLaa.add(maiorLaa);
+		groupLaa.add(menorLaa);
+		panelfe.add(laalb);
+		panelfe.add(maiorLaa);
+		panelfe.add(menorLaa);
+		panelfe.add(laa);
+		
+		panel.add(panellm);
+		panel.add(panelfe);
+		int result = JOptionPane.showConfirmDialog(null, panel,"Please Enter Values", JOptionPane.OK_CANCEL_OPTION);
 		if(result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
 			loc.setText(String.valueOf(initial[0]));
 			cyclo.setText(String.valueOf(initial[1]));
 			atfd.setText(String.valueOf(initial[2]));
 			laa.setText(String.valueOf(initial[3]));
 		}
+		
 		if(result ==JOptionPane.OK_OPTION) {
 			for (int i =0; i<getMethodTable().getColumnCount();i++) {
-				getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
-			}
-			getMethodTable().fireTableDataChanged();	
-
-
+		         getTable().setDefaultRenderer(getTable().getColumnClass(i), new MethodCellRenderer());
+		    }
+			methodTable.fireTableDataChanged();	
 			try {
-				getLmRule().setVar1(Double.valueOf(loc.getText()));
-				getLmRule().setVar2(Double.valueOf(cyclo.getText()));
-				getFeRule().setVar1(Double.valueOf(atfd.getText()));
-				getFeRule().setVar2(Double.valueOf(laa.getText()));
+				lmRule.setVar1(Double.valueOf(loc.getText()));
+				lmRule.setVar2(Double.valueOf(cyclo.getText()));
+				feRule.setVar1(Double.valueOf(atfd.getText()));
+				feRule.setVar2(Double.valueOf(laa.getText()));
 			} catch ( java.lang.NumberFormatException e) {
-
+				
 			}
-
-
 			is_L.setText(getLmRule().toString());
 			is_F.setText(getFeRule().toString());
-
+			resultp.checkErrors(getMethodTable(),getLmRule());
+			detailTable.setRMRule(getLmRule());
+			detailTable.setFERule(getFeRule());
+			detailTable.fireTableDataChanged();
 		}
-
-
 	}
 
 	public GUI() {
 		setTitle("Avaliação da qualidade de deteção de defeitos de desenho em projetos de software");
 		setLayout(new GridLayout(4,0));
-		create_GUI();
+	    create_GUI();
 	}
-
+	
 
 
 	public void open() {
@@ -851,7 +283,9 @@ public class GUI extends JFrame {
 		f.open();
 	}
 
-
+	public JTable getDtable() {
+		return dtable;
+	}
 
 	public JTable getTable() {
 		return table;
@@ -860,18 +294,20 @@ public class GUI extends JFrame {
 	public MethodTable getMethodTable() {
 		return methodTable;
 	}
+
 	public DetailTable getDetailTable() {
 		return detailTable;
+	}
+
+	public ResultPanel getResultp() {
+		return resultp;
 	}
 
 	public LMRule getLmRule() {
 		return lmRule;
 	}
-
+	
 	public FERule getFeRule() {
 		return feRule;
 	}
 }
-
-
-

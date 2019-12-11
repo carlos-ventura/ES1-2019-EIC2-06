@@ -15,11 +15,12 @@ public class Method {
 	private boolean pmd;
 	private boolean f_e;
 
+
 	public Method() {}
 
 	public Method(int id, String ppackage, String cclass, String name, int loc, int cyclo, int atfd, double laa, boolean l_m,
 			boolean iPlasma, boolean pmd, boolean f_e) {
-		super();
+		
 		this.id = id;
 		this.ppackage = ppackage;
 		this.cclass = cclass;
@@ -32,16 +33,72 @@ public class Method {
 		this.iPlasma = iPlasma;
 		this.pmd = pmd;
 		this.f_e = f_e;
+		
 	}
 
-	public boolean  is_long_method(int loc,int cyclo) {
+
+	public boolean  is_long_method(int loc,int cyclo, Symbol symbol, Symbol symbol2, Condition condition) {
 		boolean m=false;
-		if(this.loc>loc && this.cyclo>cyclo) {
-			m=true;
+		if(condition ==Condition.AND) {
+			if(symbol==Symbol.MAIOR) {
+				if(symbol2==Symbol.MAIOR) {
+					if(this.loc>loc && this.cyclo>cyclo) m=true;
+				}else{
+					if(this.loc>loc && this.cyclo<cyclo) m=true;
+				}
+			}else{
+				if(symbol2==Symbol.MAIOR) {
+					if(this.loc<loc && this.cyclo>cyclo) m=true;
+				}else{
+					if(this.loc<loc && this.cyclo<cyclo) m=true;
+				}
+			}
+		}else {
+			if(symbol==Symbol.MAIOR) {
+				if(this.loc>loc) m=true;
+			}else{
+				if(this.loc>loc) m=true;
+			}
+			if(symbol2==Symbol.MAIOR) {
+				if(this.cyclo>cyclo) m=true;
+			}else{
+				if(this.cyclo>cyclo) m=true;
+			}
 		}
+		return m;
+	}
 
-	return m;
-
+	public boolean isF_e_rule(int atfd, double laa, Symbol symbol, Symbol symbol2, Condition condition) {
+		boolean m=false;
+		if(condition ==Condition.AND) {
+			if(symbol==Symbol.MAIOR) {
+				if(symbol2==Symbol.MAIOR) {
+					if(this.atfd>atfd && this.laa>laa) m=true;
+				}else{
+					if(this.atfd>atfd && this.laa<laa) {
+						m=true;
+					}
+				}
+			}else {
+				if(symbol2==Symbol.MAIOR) {
+					if(this.atfd<atfd && this.laa>laa) m=true;
+				}else{
+					if(this.atfd<atfd && this.laa<laa) m=true;
+				}
+			}
+		}else {
+			if(symbol==Symbol.MAIOR) {
+				if(this.atfd>atfd) m=true;
+			}else{
+				if(this.atfd>atfd) m=true;
+			}
+			if(symbol2==Symbol.MAIOR) {
+				if(this.laa>laa) m=true;
+			}else{
+				if(this.laa>laa) m=true;
+			}
+		}
+		return m;
 	}
 
 	public int getId() {
@@ -84,6 +141,7 @@ public class Method {
 		this.loc = loc;
 	}
 
+
 	public int getCyclo() {
 		return cyclo;
 	}
@@ -123,11 +181,11 @@ public class Method {
 	public boolean isiPlasma() {
 		return iPlasma;
 	}
-
+	
 	public void setiPlasma(boolean iPlasma) {
 		this.iPlasma = iPlasma;
 	}
-
+	
 	public boolean isPmd() {
 		return pmd;
 	}

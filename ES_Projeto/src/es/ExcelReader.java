@@ -16,16 +16,21 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelReader implements ActionListener {
+
 	private static String keep="";
 	private MethodTable methodTable;
 	private DetailTable detailTable;
+	private ResultPanel resultp;
 
-
-	public ExcelReader(MethodTable methodTable, DetailTable detailTable) {
-		this.methodTable = methodTable;
-		this.detailTable = detailTable;
-
+	private LMRule lmRule;
+	
+	public ExcelReader(MethodTable methodTable,DetailTable detailTable,ResultPanel resultp,LMRule lmRule) {
+		this.methodTable=methodTable;
+		this.detailTable=detailTable;
+		this.resultp=resultp;
+		this.lmRule = lmRule;
 	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JFileChooser fc = new JFileChooser();
@@ -35,20 +40,24 @@ public class ExcelReader implements ActionListener {
 		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fc.getSelectedFile();
-			keep = selectedFile.getAbsolutePath();
-			if(keep.contains("xlx") || keep.contains("xlsx"))
+			setKeep(selectedFile.getAbsolutePath());
+			System.out.println(keep);
+			if(getKeep().contains("xlx") || getKeep().contains("xlsx"))
 				readExcel();
+
+			resultp.checkErrors(methodTable, lmRule);
 
 		} else if(returnVal == JFileChooser.CANCEL_OPTION ) {
 			return;
 		}
 
 	}
+	
 	public void readExcel() {
 		try {
 			methodTable.clear();
 			detailTable.clear();
-			FileInputStream file = new FileInputStream(new File(keep));
+			FileInputStream file = new FileInputStream(new File(getKeep()));
 			//Create Workbook instance holding reference to .xlsx file
 			XSSFWorkbook workbook = new XSSFWorkbook(file);
 			//Get first/desired sheet from the workbook
@@ -65,7 +74,7 @@ public class ExcelReader implements ActionListener {
 					}
 				}
 			}
-	
+
 			// -1 Header Row
 			rows--;
 			//I've Header and I'm ignoring header for that I've +1 in loop
@@ -130,7 +139,6 @@ public class ExcelReader implements ActionListener {
 					rows++;
 				}
 				methodTable.addMethod(m);
-
 				detailTable.addMethod(m);
 				workbook.close();
 			} 
@@ -138,6 +146,18 @@ public class ExcelReader implements ActionListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static String getKeep() {
+		return keep;
+	}
+	
+	public static void setKeep(String keep) {
+		ExcelReader.keep = keep;
+	}
+	
+	public LMRule getLmRule() {
+		return lmRule;
 	}
 
 }
