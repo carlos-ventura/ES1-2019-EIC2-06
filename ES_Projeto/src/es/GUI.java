@@ -25,6 +25,10 @@ import javax.swing.JTextField;
 import es.DetailTable;
 import es.ResultPanel;
 
+/**
+ * Classe responsavel pela criação da GUI principal e da
+ * GUI respetiva à criação de uma nova regra
+ */
 public class GUI extends JFrame {
 	private MethodTable methodTable;
 	private DetailTable detailTable;
@@ -42,6 +46,10 @@ public class GUI extends JFrame {
 	
 	private ResultPanel resultp = new ResultPanel();
 	
+	/**
+	 * Metodo que trata da criacao dos aspetos primerio da GUI
+	 * Trata das acoes de pressionar em botoes
+	 */
 	public void create_GUI() {
 		methodTable = new MethodTable();
 		detailTable = new DetailTable();
@@ -128,7 +136,10 @@ public class GUI extends JFrame {
 		add(getResultp());
 	}
 	
-
+	/**
+	 * Metodo que permite alterar os thresholds das metricas em relacao a detencao de defeitos
+	 * long method e feature envy
+	 */
 	private void gui_thresholds() {
 		double [] initial = new double [4];
 		initial[0]= Double.parseDouble(loc.getText());
@@ -262,6 +273,9 @@ public class GUI extends JFrame {
 		}
 	}
 
+	/** 
+	 * Construtor da interface visual
+	 */
 	public GUI() {
 		setTitle("Avaliação da qualidade de deteção de defeitos de desenho em projetos de software");
 		setLayout(new GridLayout(4,0));
@@ -269,7 +283,9 @@ public class GUI extends JFrame {
 	}
 	
 
-
+	/**
+	 * Metodo para abrir a GUI  permitir a sua visualizacao com tamanho predefinido
+	 */
 	public void open() {
 		setSize(1200, 800);
 		setVisible(true);
@@ -278,35 +294,68 @@ public class GUI extends JFrame {
 		setResizable(false);
 	}
 
+	/**
+	 * Método main para iniciar o programa
+	 * @param args
+	 * @throws FileNotFoundException
+	 */
 	public static void main(String[] args) throws FileNotFoundException {
 		GUI f=new GUI();
 		f.open();
 	}
 
+	/**
+	 * Método que devolve a tabela que contém os dados do ficheiro excel e as duas colunas que dizem se o método é Long Method ou Feature Envy segundo a regra definida pelo utilizador
+	 * @return Devolve o atributo dtable que contém um objeto do tipo JTable
+	 */
 	public JTable getDtable() {
 		return dtable;
 	}
 
+	/**
+	 * Método que devolve a tabela que contém os dados do ficheiro excel
+	 * @return Devolve o atributo table, que contém um objeto do tipo JTable 
+	 */
 	public JTable getTable() {
 		return table;
 	}
 
+	/**
+	 * Método que devolve a tabela que contém os dados do ficheiro excel e as duas colunas que dizem se o método é Long Method ou Feature Envy segundo a regra definida pelo utilizador
+	 * @return Devolve o atributo dtable que contém um objeto do tipo MethodTable
+	 */
 	public MethodTable getMethodTable() {
 		return methodTable;
 	}
 
+	/**
+	 * Método que devolve a tabela que contém os dados do ficheiro excel
+	 * @return Devolve o atributo detailTable, que contém um objeto do tipo MethodTable
+	 */
 	public DetailTable getDetailTable() {
 		return detailTable;
 	}
 
+	/**
+	 * Método que devolve a tabela com a informação acerca das diferentes ferramentas e os erros detetados
+	 * @return Devolve o atributo resultp, que contém um objeto do tipo ResultTable
+	 */
 	public ResultPanel getResultp() {
 		return resultp;
 	}
 
+	/**
+	 * Método que devolve a regra criada pelo utilizador relativa ao Long Method
+	 * @return Devolve o atributo lmRule, que contém um objeto do tipo LMRule
+	 */
 	public LMRule getLmRule() {
 		return lmRule;
 	}
 	
+	/** 
+ 	 * Método que devolve a regra criada pelo utilizador relativa ao Feature Envy
+	 * @return Devolve o atributo feRule, que contém um objeto do tipo FERule
+	 */
 	public FERule getFeRule() {
 		return feRule;
 	}

@@ -15,6 +15,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+/**
+ * 
+ * Classe que trata da leitura do ficheiro excel
+ *
+ */
 public class ExcelReader implements ActionListener {
 
 	private static String keep="";
@@ -24,6 +29,13 @@ public class ExcelReader implements ActionListener {
 
 	private LMRule lmRule;
 	
+	/**
+	 * Construtor da classe ExcelReader
+	 * @param methodTable Tabela com os dados do ficheiro
+	 * @param detailTable Tabela com os dados do ficheiro e com colunas para o Long Method e Feature Envy para a regra que o utilizador define
+	 * @param resultp Tabela com os valores de DCI, DII, ADCI e ADII
+	 * @param lmRule Regra definida pelo utilizador para o campo Long Method
+	 */
 	public ExcelReader(MethodTable methodTable,DetailTable detailTable,ResultPanel resultp,LMRule lmRule) {
 		this.methodTable=methodTable;
 		this.detailTable=detailTable;
@@ -31,6 +43,9 @@ public class ExcelReader implements ActionListener {
 		this.lmRule = lmRule;
 	}
 
+	/**
+	 * Método que é chamado quando se clica no botao "Choose File"
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JFileChooser fc = new JFileChooser();
@@ -53,6 +68,10 @@ public class ExcelReader implements ActionListener {
 
 	}
 	
+	/**
+	 * Metodo que adicona o ficheiro Excel graficamente à GUI. 
+	 * Cria objetos Method para cada linha da tabela com todos os atributos
+	 */
 	public void readExcel() {
 		try {
 			methodTable.clear();
@@ -148,14 +167,26 @@ public class ExcelReader implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Getter do atributo keep
+	 * @return Valor do atributo keep
+	 */
 	public static String getKeep() {
 		return keep;
 	}
 	
+	/**
+	 * Setter do atributo keep
+	 * @param keep Valor que o atributo keep irá tomar
+	 */
 	public static void setKeep(String keep) {
 		ExcelReader.keep = keep;
 	}
 	
+	/**
+	 * Getter do atributo lmRule
+	 * @return Valor do atributo lmRule
+	 */
 	public LMRule getLmRule() {
 		return lmRule;
 	}
