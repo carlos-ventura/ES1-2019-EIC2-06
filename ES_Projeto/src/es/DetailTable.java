@@ -19,8 +19,8 @@ public class DetailTable extends MethodTable {
 	/**
 	 * Array de Strings com os nomes das colunas da tabela
 	 */
-	final String[] columnNames = {"MethodID", "package","class", "method", "LOC", "CYCLO", "ATFD", "LAA", "is_long_method", "is_long_method(new)", "iPlasma", "PMD", 
-			"is_feature_envy", "is_feature_envy(new)"};
+	final String[] columnNames = {"MethodID", "package","class", "method", "LOC", "CYCLO", "ATFD", "LAA", "is_long_method", "New_is_long_method", "iPlasma", "PMD", 
+			"is_feature_envy", "New_is_feature_envy"};
 
 	/**
 	 * Array de Classes que define o tipo de dados de cada coluna da tabela

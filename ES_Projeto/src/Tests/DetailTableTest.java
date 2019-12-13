@@ -114,8 +114,8 @@ class DetailTableTest {
 	@Test
 	void testGetColumnNames() {
 
-		String[] s = {"MethodID", "package","class", "method", "LOC", "CYCLO", "ATFD", "LAA", "is_long_method", "is_long_method(new)", "iPlasma", "PMD", 
-				"is_feature_envy", "is_feature_envy(new)"};
+		String[] s = {"MethodID", "package","class", "method", "LOC", "CYCLO", "ATFD", "LAA", "is_long_method", "New_is_long_method", "iPlasma", "PMD", 
+				"is_feature_envy", "New_is_feature_envy"};
 		for (int i=0; i<dt.getColumnNames().length;i++) {
 			assertEquals(dt.getColumnNames()[i],s[i]);
 			}

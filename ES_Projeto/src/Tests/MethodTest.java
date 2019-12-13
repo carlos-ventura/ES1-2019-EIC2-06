@@ -38,17 +38,24 @@ class MethodTest {
 	@Test
 	void testIs_long_method() {
 		
-		assertEquals(m.is_long_method(80, 10, Symbol.MAIOR, Symbol.MAIOR, Condition.AND), false);
-		assertEquals(m.is_long_method(m.getLoc(), m.getCyclo(), Symbol.MAIOR, Symbol.MAIOR, Condition.OR), false);
+		assertEquals(m.is_long_method(10, 4, Symbol.MAIOR, Symbol.MAIOR, Condition.AND), true);
+		assertEquals(m.is_long_method(30, 3, Symbol.MAIOR, Symbol.MAIOR, Condition.AND), false);
+		assertEquals(m.is_long_method(2,6, Symbol.MAIOR, Symbol.MAIOR, Condition.OR), true);
 		
-		assertEquals(m.is_long_method(m.getLoc(), m.getCyclo(), Symbol.MAIOR, Symbol.MENOR, Condition.AND), false);
-		assertEquals(m.is_long_method(m.getLoc(), m.getCyclo(), Symbol.MAIOR, Symbol.MENOR, Condition.OR), false);
+		assertEquals(m.is_long_method(2,6, Symbol.MAIOR, Symbol.MENOR, Condition.AND), true);
+		assertEquals(m.is_long_method(2,4, Symbol.MAIOR, Symbol.MENOR, Condition.AND), false);
+		assertEquals(m.is_long_method(2, 7, Symbol.MAIOR, Symbol.MENOR, Condition.OR), true);
+		assertEquals(m.is_long_method(30, 4, Symbol.MAIOR, Symbol.MENOR, Condition.OR), true);
 		
-		assertEquals(m.is_long_method(m.getLoc(), m.getCyclo(), Symbol.MENOR, Symbol.MAIOR, Condition.AND), false);
-		assertEquals(m.is_long_method(m.getLoc(), m.getCyclo(), Symbol.MENOR, Symbol.MAIOR, Condition.OR), false);
+		assertEquals(m.is_long_method(30,2, Symbol.MENOR, Symbol.MAIOR, Condition.AND), true);
+		assertEquals(m.is_long_method(7,2, Symbol.MENOR, Symbol.MAIOR, Condition.AND), false);
+		assertEquals(m.is_long_method(31,2, Symbol.MENOR, Symbol.MAIOR, Condition.OR), true);
 		
-		assertEquals(m.is_long_method(m.getLoc(), m.getCyclo(), Symbol.MENOR, Symbol.MENOR, Condition.AND), false);
-		assertEquals(m.is_long_method(m.getLoc(), m.getCyclo(), Symbol.MENOR, Symbol.MENOR, Condition.OR), false);
+		assertEquals(m.is_long_method(31, 41, Symbol.MENOR, Symbol.MENOR, Condition.AND), true);
+		assertEquals(m.is_long_method(10, 41, Symbol.MENOR, Symbol.MENOR, Condition.AND), false);
+		assertEquals(m.is_long_method(30, 1, Symbol.MENOR, Symbol.MENOR, Condition.OR), true);
+		assertEquals(m.is_long_method(1, 30, Symbol.MENOR, Symbol.MENOR, Condition.OR), true);
+		assertEquals(m.is_long_method(1, 2, Symbol.MENOR, Symbol.MENOR, Condition.OR), true);
 		
 		
 		Method m1 = new Method(8,"es.project.","GrammerException" , "GrammerException(int,String)", 95,21,0,0,false,false,false,false);

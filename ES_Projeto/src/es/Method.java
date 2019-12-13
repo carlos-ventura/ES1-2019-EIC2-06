@@ -74,15 +74,19 @@ public class Method {
 		if(condition ==Condition.AND) {
 			if(symbol==Symbol.MAIOR) {
 				if(symbol2==Symbol.MAIOR) {
-					if(this.loc>loc && this.cyclo>cyclo) m=true;
+					if(this.loc>loc && this.cyclo>cyclo) 
+						m=true;
 				}else{
-					if(this.loc>loc && this.cyclo<cyclo) m=true;
+					if(this.loc>loc && this.cyclo<cyclo) 
+						m=true;
 				}
 			}else{
 				if(symbol2==Symbol.MAIOR) {
-					if(this.loc<loc && this.cyclo>cyclo) m=true;
+					if(this.loc<loc && this.cyclo>cyclo) 
+						m=true;
 				}else{
-					if(this.loc<loc && this.cyclo<cyclo) m=true;
+					if(this.loc<loc && this.cyclo<cyclo) 
+						m=true;
 				}
 			}
 		}else {

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import es.Condition;
 import es.FERule;
+import es.LMRule;
 import es.Rule;
 import es.Symbol;
 
@@ -36,7 +37,7 @@ class FERuleTest {
 
 	@Test
 	void testToString() {
-		assertEquals(r.toString(),("                                    "+"                                    "+"Is_Feature_Envy: ATFD>3.0 and LAA>2.0"));
+		assertEquals(r.toString(),(Rule.SPACE+FERule.RULENAME+": ATFD>3.0 and LAA>2.0"));
 	}
 
 	@Test

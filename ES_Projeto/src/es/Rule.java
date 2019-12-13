@@ -6,7 +6,7 @@ package es;
  *
  */
 public abstract class Rule {
-	protected static final String  SPACE="                                    ";
+	public static final String  SPACE="                                                       ";
 	
 	private Symbol symbol1;
 	private double var1;

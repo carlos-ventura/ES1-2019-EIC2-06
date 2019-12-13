@@ -7,7 +7,7 @@ package es;
  *
  */
 public class LMRule extends Rule{
-	private static final String  RULENAME="Is_Long_Method";
+	public static final String  RULENAME="New_Is_Long_Method";
 	
 	/**
 	 * 
@@ -28,6 +28,6 @@ public class LMRule extends Rule{
 	 * Método que apresenta na GUI os parametros da regra definidos pelo utilizador
 	 */
 	public String toString() {
-		return Rule.SPACE+Rule.SPACE+RULENAME+": LOC"+ getSymbol1()+(int)getVar1() + " "+ getCondition()+ " CYCLO" + getSymbol2()+(int)getVar2();
+		return Rule.SPACE+RULENAME+": LOC"+ getSymbol1()+(int)getVar1() + " "+ getCondition()+ " CYCLO" + getSymbol2()+(int)getVar2();
 	}
 }

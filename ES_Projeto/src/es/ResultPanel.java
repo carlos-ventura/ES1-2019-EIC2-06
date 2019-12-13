@@ -30,7 +30,7 @@ public class ResultPanel extends JPanel{
 		setLayout(new BorderLayout());
 		result.addLine(new Line("iPlasma",0,0,0,0));
 		result.addLine(new Line("PMD",0,0,0,0));
-		result.addLine(new Line("New Rule",0,0,0,0));
+		result.addLine(new Line("New_is_long_method",0,0,0,0));
 		JTable resultTable = new JTable(result);
 		JScrollPane sp=new JScrollPane(resultTable);
 		JPanel aux=new JPanel();

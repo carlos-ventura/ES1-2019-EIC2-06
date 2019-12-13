@@ -91,7 +91,7 @@ class LMRuleTest {
 	
 	@Test
 	void testToString() {
-		assertEquals(r.toString(),("                                    "+ "                                    " +"Is_Long_Method: LOC>90 and CYCLO>15"));
+		assertEquals(r.toString(),(Rule.SPACE+LMRule.RULENAME+ ": LOC>90 and CYCLO>15"));
 	}
 
 }

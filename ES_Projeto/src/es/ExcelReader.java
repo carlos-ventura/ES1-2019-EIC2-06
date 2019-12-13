@@ -56,7 +56,6 @@ public class ExcelReader implements ActionListener {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fc.getSelectedFile();
 			setKeep(selectedFile.getAbsolutePath());
-			System.out.println(keep);
 			if(getKeep().contains("xlx") || getKeep().contains("xlsx"))
 				readExcel();
 

@@ -6,7 +6,7 @@ package es;
  *
  */
 public class FERule extends Rule {
-	private static final String  RULENAME="Is_Feature_Envy";
+	public static final String  RULENAME="New_Is_Feature_Envy";
 
 	/**
 	 * 
@@ -28,6 +28,6 @@ public class FERule extends Rule {
 	 * Método que apresenta na GUI os parametros da regra definidos pelo utilizador
 	 */
 	public String toString() {
-		return Rule.SPACE+Rule.SPACE+RULENAME+": ATFD"+ getSymbol1()+getVar1() + " "+ getCondition()+ " LAA" + getSymbol2()+getVar2() ;
+		return Rule.SPACE+RULENAME+": ATFD"+ getSymbol1()+getVar1() + " "+ getCondition()+ " LAA" + getSymbol2()+getVar2() ;
 	}
 }
